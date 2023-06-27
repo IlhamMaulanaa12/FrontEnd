@@ -1,7 +1,6 @@
 import React from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Home from '../Pages/Home'
-import Menu from '../Pages/Menu'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import Card from '../components/Card'
@@ -22,7 +21,6 @@ const Routing = () => {
     <BrowserRouter>
         <Routes>
             <Route path='/' element={<Home />} />
-            <Route path='/Menu' element={<Menu />} />
             <Route path='/Navbar' element={<Navbar/>} />
             <Route path='/Footer' element={<Footer/>} />
             <Route path='/Card' element={<Card/>} />

@@ -1,17 +1,215 @@
-import React from "react";
-import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import Carousel from 'react-bootstrap/Carousel';
-import ImageGrid from 'react-grid-carousel'
-import { Link } from "react-router-dom";
+import React, {
+	useState,
+	useEffect,
+} from "react";
+import "../style/main.css";
+import { GiShoppingBag } from "react-icons/gi";
+//import RatingStars from "./components/RatingStars";
+import ShoppingCart from "../components/ShoppingCart";
+import axios from "axios";
+import { Container,Col, Nav, Navbar } from "react-bootstrap";
+import { Outlet, useNavigate,Link } from "react-router-dom";
+import Cookies from "js-cookie";
+import { FaBook } from "react-icons/fa";
+import Order from "./Order";
+import Swal from "sweetalert2";
+import heroImg from "../../src/assets/Image/logo.webp";
+
 
 
 function Home() {
 
+	const [products, setProduct] = useState([]);
+	const [search,setSearch] = useState("");
+	const [user,setUser] = useState (undefined)
+	const navigate = useNavigate()
+
+    const handleLogout = () => {
+        Cookies.remove('token_user')
+        Cookies.remove('user');
+        navigate("/Login");
+		Swal.fire('Logout Succes')
+    }
+
+
+	useEffect(()=>{
+
+        if(Cookies.get('token_user') !==undefined){
+            setUser(JSON.parse(Cookies.get('user')))
+        }
+    },[])
+
+  
+	useEffect(() => {
+		axios
+		.get("http://localhost:3000/api/products")
+		.then((result) => {
+			console.log(result.data.data);
+			setProduct(result.data.data);
+		})
+		.catch((error) => console.log(error));
+	}, []);
+
+	const [cartsVisibilty, setCartVisible] = useState(false);
+
+	const [productsInCart, setProducts] =
+		useState(
+			JSON.parse(
+				localStorage.getItem(
+					"shopping-cart"
+				)
+			) || []
+		);
+	useEffect(() => {
+		localStorage.setItem(
+			"shopping-cart",
+			JSON.stringify(productsInCart)
+		);
+	}, [productsInCart]);
+
+	const addProductToCart = (product) => {
+		if (!user) {
+			navigate('/Login')
+		}
+			const newProduct = {
+				...product,
+				count: 1,
+			};
+			setProducts([
+				...productsInCart,
+				newProduct,
+			]);
+	};
+
+
+
+	const onQuantityChange = (
+		productId,
+		count
+	) => {
+		setProducts((oldState) => {
+			const productsIndex =
+				oldState.findIndex(
+					(item) =>
+						item.id === productId
+				);
+			if (productsIndex !== -1) {
+				oldState[productsIndex].count =
+					count;
+			}
+			return [...oldState];
+		});
+	};
+
+	const onProductRemove = (product) => {
+		setProducts((oldState) => {
+			const productsIndex =
+				oldState.findIndex(
+					(item) =>
+						item.id === product.id
+				);
+			if (productsIndex !== -1) {
+				oldState.splice(productsIndex, 1);
+			}
+			return [...oldState];
+		});
+	};
+
+	function convertToRupiah(angka)
+    {
+        var rupiah = '';		
+        var angkarev = angka.toString().split('').reverse().join('');
+        for(var i = 0; i < angkarev.length; i++) if(i%3 == 0) rupiah += angkarev.substr(i,3)+'.';
+        return 'Rp. '+rupiah.split('',rupiah.length-1).reverse().join('');
+    } 
+
 	
 	return(
-		<div>
-			<Navbar/>
+		<div style={{backgroundColor:"black"}}>
+			<div>
+			<ShoppingCart
+				visibilty={cartsVisibilty}
+				products={productsInCart}
+				onClose={() =>
+					setCartVisible(false)
+				}
+				onQuantityChange={
+					onQuantityChange
+				}
+				onProductRemove={onProductRemove}
+			/>
+			
+            <Navbar bg="black" variant="black">
+                <Container>
+                        <Nav className="me-auto">
+                            <Nav.Link href="/">
+                                <div style={{marginLeft: '39px'}}  className="text-warning"><h1>Fast Food</h1></div>
+                            </Nav.Link>
+                        </Nav>
+                            <ul className="navbar-nav ms-auto ">
+                                <Nav.Link href="/">
+                                    <div className="text-white"><h4>Home</h4></div>
+                                </Nav.Link>
+                                
+                                {
+									!user &&
+										<button
+											className="btn shopping-cart-btn"
+											onClick={() => setCartVisible(true)}>
+											<GiShoppingBag size={24} />
+											{productsInCart.length > 0 &&
+											(<span className="product-count">
+												
+											</span>
+										)}
+										</button>
+								}
+								{
+									user &&
+										<button
+											className="btn shopping-cart-btn"
+											onClick={() => setCartVisible(true)}>
+											<GiShoppingBag size={24} />
+											{productsInCart.length > 0 &&
+											(<span className="product-count">
+												{productsInCart.length}
+											</span>
+										)}
+										</button>
+								}
+								<>
+								{
+									user &&
+									<Nav.Link href="/Order">
+                                    	<div className="text-white"><h4><FaBook size={24} /></h4></div>
+                                	</Nav.Link>
+									
+								}
+								</>
+                                {
+                                    !user &&
+                                    <li>
+                                        <Nav.Link href="/Register">
+                                            <div className="text-white"><h4>Sign Up</h4></div>
+                                        </Nav.Link>
+                                    </li>
+                                }
+                                {
+                                    user &&
+                                    <li>
+                                        <Nav.Link href="/">
+                                            <div onClick={handleLogout} className="text-white">
+                                                <h4>Logout</h4>
+                                            </div>
+                                        </Nav.Link>
+                                    </li>
+                                }
+                            </ul>
+                </Container>    
+            </Navbar>
+            <Outlet/>
+        </div>
 				<div style={{backgroundColor:"black"}}>
 						<div className="container">
 						<div className="row">
@@ -20,9 +218,8 @@ function Home() {
 									<div className="body">
 										<div className="title">
 										<br/><br/>
-											<h4 style={{marginLeft: '39px'}} className="fs-10 text-warning mb-4">Selamat datang di Fast Food </h4>
-												<br/>
-												<h1 style={{marginLeft: '39px'}} className="display-3 fw-bold text-white mb-4 "> Nikmati <br/> Makanan Sehat <br/> & Lezat Kamu <br/> Ada Disini </h1>
+											<br/>
+												<h1 style={{marginLeft: '39px'}} className="display-4 fw-bold text-white mb-4 "> Nikmati <br/> Makanan Sehat <br/> & Lezat Kamu <br/> Ada Disini </h1>
 												<h6 style={{marginLeft: '39px'}} className="fs-10 text-muted mb-4">Makanan biasanya berasal dari tumbuhan ,<br/> hewan atau jamur ,dan  mengandung nutrisi penting,<br/>seperti karbohidrat,lemak,protein,vitamin atau mineral </h6>
 												<button style={{marginLeft: '39px'}}  type="button" className="btn btn-outline-warning">
 												<Link className="link-warning" to="/Menu" > <div className="text-warning">View Menu</div></Link>
@@ -36,40 +233,84 @@ function Home() {
 									<center>
 										<div>
 											<br/><br/><br/><br/><br/>
-										<Carousel>
-										<Carousel.Item>
-											<img
-											className="d-block w-100"
-											src="https://www.piknikdong.com/wp-content/uploads/2021/11/Resep-Ayam-Geprek-Bensu-min.jpg"
-											width="400" height="400"
-											alt="First slide"
-											/>
-										</Carousel.Item>
-										<Carousel.Item>
-											<img
-											className="d-block w-100"
-											src="https://img-global.cpcdn.com/recipes/18e75e45937347db/1200x630cq70/photo.jpg"
-											width="500" height="400"
-											alt="Second slide"
-											/>
-										</Carousel.Item>
-										<Carousel.Item>
-											<img
-											className="d-block w-100"
-											src="https://img.okezone.com/content/2019/06/09/298/2064765/aroma-kopi-indonesia-semakin-harum-di-world-of-coffe-jerman-C8ygzWfm8s.jpg"
-											width="400" height="400"
-											alt="Third slide"
-											/>
-										</Carousel.Item>
-										</Carousel>
+											<Col lg="6" md="6">
+												<div>
+													<img src={heroImg} alt="hero-img" width="500" height="300" />
+												</div>
+											</Col>
 										</div>
 									</center>
 								</div>
 							</div>
 					</div>
 				</div>
-				<br/><br/><br/><br/>
+				<br/><br/><br/><br/><br/><br/><br/>
 
+				<div lg="12" className="text-center">
+					<h3 className="display-6 fw-bold text-warning mb-4"> POPULAR FOODS </h3><br/><br/>
+            	</div>
+
+				<center>
+				<div className="card bg-black" style={{width: '1200px',height:'90px'}}>
+					
+				<br/>
+				<ul className="nav justify-content-center">
+				<Nav className="me-auto">
+				<form style={{width:"300px",marginLeft:"10px"}} className="d-flex form-inline my-5 my-lg-0">
+					<input
+					type="text"
+					placeholder="Cari menu favorit anda"
+					className="form-control"
+					onChange={(e) => setSearch(e.target.value)}
+					/> 
+				</form>
+                </Nav>
+				<Nav.Link>
+						<div className="text-white"><h4>All</h4></div>
+				</Nav.Link>
+				<Nav.Link href="/Food">
+					<div className="text-white"><h4>Food</h4></div>
+				</Nav.Link>
+				<Nav.Link href="/Drink">
+					<div className="text-white"><h4>Drink</h4></div>
+				</Nav.Link>
+			</ul>
+								
+					
+				</div>				
+				</center>
+		
+				
+
+				<div className="d-flex text-left flex-wrap">
+					{products?.filter((data) => 
+          			data.name.toLowerCase().includes(search)
+        			).map((product,index) => (
+						<div className="col-lg" key={index}><br/><br/>
+                        <div className="card bg-black border-black mb-4" style={{width: '18rem',marginLeft: '130px'}}>
+                            <img src={product.image} className="card-img-top" alt="" width="100" height="200" />
+                                <div className="card-body">
+                                    <button style={{borderTopRightRadius:"15px",borderBottomRightRadius:"15px"}} type="button" className="btn btn-primary">
+                                        {product.tags?.name}
+									</button><br/><br/>
+                                            <h5 className="card-title text-white">{product.name}</h5>
+                                            <h5 className="card-title text-muted">Harga : {convertToRupiah(product.price)}</h5><br/>        
+                                    <button onClick={() =>
+										addProductToCart(
+											product
+										)
+									}  
+									style={{width: '15rem'}} type="button" className="btn btn-warning text-white">
+                                    	Add to Cart
+                                    </button><br/><br/>
+                                </div>
+                        </div>
+                    </div>
+					))}
+				</div><br/><br/><br/><br/><br/><br/><br/><br/>
+				
+				<h3 className="display-6 fw-bold text-warning text-center mb-4">OUR SERVICE</h3><br/><br/>
+				
 				<div className="container">
 						<div className="row">
 							<div className="col-lg">
@@ -114,78 +355,10 @@ function Home() {
 							
 						</div>
 
-					</div>
+					</div><br/><br/><br/><br/><br/><br/><br/><br/>
 
-				<br/><br/><br/>
-					
-					
-					<div className="container">
-						<div className="row">
-							<div className="col-lg">
-								<div className="card-bg-dark">
-								<div>
-									<img src="https://www.piknikdong.com/wp-content/uploads/2021/11/Resep-Ayam-Geprek-Bensu-min.jpg"
-									className="card-img-top" alt="..." />
-								</div>
-								</div>
-							</div>
-							<div className="col-lg">
-								<div className="card-bg-dark">
-								<div>
-									<div className="card-body">
-									<h3 style={{marginLeft: '39px'}} className="display-6 fw-bold text-white mb-4">Menyajikan Makanan Terbaik adalah Prioritas Utama Kami</h3><br/>
-									<h6 style={{marginLeft: '39px'}} className="fs-10 text-muted mb-4">Ciri khas ayam geprek ini adalah ayam bersalut tepung yang ditumbuk dengan bumbu pedasnya. Jadinya rasa pedas dari bumbu lebih menyerap sampai ke serat-serat dagingnya. Bisa dibilang ini merupakan perkawinan ayam ala amrik dengan bumbu nusantara yang khas. Nah, nampol pastinya buat penggemar ayam tepung yang rasanya crispy. </h6>
-								</div>
-								</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<br/><br/><br/>
-					<div className="container">
-						<div className="row">
-						<div className="col-lg">
-								<div className="card-bg-dark">
-								<h3 style={{marginLeft: '39px'}} className="display-6 fw-bold text-white mb-4">Kami juga Menyediakan <br/> Beberapa Jenis Makanan</h3><br/>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-					
-					<center>
-					<div className="col-lg">
-						<div className="card bg-black border-black mb-4" style={{width: '75rem'}}>
-								<div>            
-									<ImageGrid cols={3} rows={1} gap={10} loop>
-										<ImageGrid.Item>
-											<img style={{marginLeft: '1px'}}  width="400" height="200" src="https://www.piknikdong.com/wp-content/uploads/2021/11/Resep-Ayam-Geprek-Bensu-min.jpg" />
-											<h3 className="text-white text-center">Ayam</h3><br/>
-										</ImageGrid.Item>
-										<ImageGrid.Item>
-											<img style={{marginLeft: '1px'}}  width="400" height="200" src="https://www.astronauts.id/blog/wp-content/uploads/2022/11/Resep-Steak-Daging-Sapi-Untuk-Diet-yang-Tetap-Lezat-1200x900.jpg" />
-											<h3 className="text-white text-center">Steak</h3><br/>
-										</ImageGrid.Item>
-										<ImageGrid.Item>
-											<img style={{marginLeft: '1px'}}  width="400" height="200" src="https://asset-a.grid.id/crop/0x0:0x0/360x240/photo/2018/07/02/3102929907.jpg" />
-											<h3 className="text-white text-center">Sup & Soto</h3><br/>
-										</ImageGrid.Item>
-										<ImageGrid.Item>
-											<img style={{marginLeft: '1px'}}  width="400" height="200" src="https://img.okezone.com/content/2019/06/09/298/2064765/aroma-kopi-indonesia-semakin-harum-di-world-of-coffe-jerman-C8ygzWfm8s.jpg" />
-											<h3 className="text-white text-center">Coffe</h3><br/>
-										</ImageGrid.Item>
-										<ImageGrid.Item>
-											<img style={{marginLeft: '1px'}}  width="400" height="200" src="https://thegirlonbloor.com/wp-content/uploads/2021/08/Mango-Dragonfruit-Refresher-11.jpg" />
-											<h3 className="text-white text-center">Cold Drinks</h3><br/>
-										</ImageGrid.Item>
-										</ImageGrid>
-										</div>
-								</div>
-							</div>
-					</center>
-					<br/>
 		
-					<h1 className="fs-10 text-warning text-center mb-4">CUSTOMER'S REVIEW </h1><br/>
+					<h1 className="fs-10 text-warning text-center mb-4">CUSTOMER'S REVIEW </h1><br/><br/>
 					<div className="container">
 						<div className="row">
 						<div className="col-lg">
@@ -285,7 +458,7 @@ function Home() {
 						</div>
 
 					</div>
-				</div>
+				</div><br/><br/><br/><br/>
 			<Footer/>
 		</div>
 	)

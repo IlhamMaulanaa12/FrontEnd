@@ -7,6 +7,7 @@ import ShoppingCart from "../components/ShoppingCart";
 import Cookies from "js-cookie";
 import { useEffect } from "react";
 import Swal from "sweetalert2";
+import { FaBook } from "react-icons/fa";
 
 const Header = () => {
 
@@ -100,6 +101,41 @@ const Header = () => {
                                     <div className="text-white"><h4>Menu</h4></div>
                                 </Nav.Link>
                                 {
+									!user &&
+										<button
+											className="btn shopping-cart-btn"
+											onClick={() => setCartVisible(true)}>
+											<GiShoppingBag size={24} />
+											{productsInCart.length > 0 &&
+											(<span className="product-count">
+												
+											</span>
+										)}
+										</button>
+								}
+								{
+									user &&
+										<button
+											className="btn shopping-cart-btn"
+											onClick={() => setCartVisible(true)}>
+											<GiShoppingBag size={24} />
+											{productsInCart.length > 0 &&
+											(<span className="product-count">
+												{productsInCart.length}
+											</span>
+										)}
+										</button>
+								}
+								<>
+								{
+									user &&
+									<Nav.Link href="/Order">
+                                    	<div className="text-white"><h4><FaBook size={24} /></h4></div>
+                                	</Nav.Link>
+									
+								}
+								</>
+                                {
                                     !user &&
                                     <li>
                                         <Nav.Link href="/Register">
@@ -115,15 +151,12 @@ const Header = () => {
                                                 <h4>Logout</h4>
                                             </div>
                                         </Nav.Link>
-                                            
-                                        
                                     </li>
                                 }
                             </ul>
                 </Container>    
             </Navbar>
             <Outlet/>
-            <div style={{flex: 1, height: '2px', backgroundColor: '#ffc107'}} />
         </div>
     )
 }

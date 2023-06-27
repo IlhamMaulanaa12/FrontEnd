@@ -157,9 +157,6 @@ function Order() {
                                 <Nav.Link href="/">
                                     <div className="text-white"><h4>Home</h4></div>
                                 </Nav.Link>
-                                <Nav.Link href="/Menu">
-                                    <div className="text-white"><h4>Menu</h4></div>
-                                </Nav.Link>
                                 {
 									!user &&
 										<button
@@ -232,7 +229,7 @@ function Order() {
 								</h5><br/>
 								<h5 style={{marginLeft:"18px"}} className="card-title">Order Number:{orders.order_number}</h5>								
 								<h5 style={{marginLeft:"18px"}} className="card-title">Order Item: {orders.order_items?.map((item) => `${item.qty} ${item.name}`).join(', ')}</h5>
-								<h5 style={{marginLeft:"18px"}} className="card-title">Total: {orders.order_items?.map((item) => item.price*item.qty).reduce((a, b) => a + b, 0)}</h5>
+								<h5 style={{marginLeft:"18px"}} className="card-title">Total: {convertToRupiah(orders.order_items?.map((item) => item.price*item.qty).reduce((a, b) => a + b, 0))}</h5>
 								<div style={{flex: 1, height: '2px', backgroundColor: 'black'}} /><br/>
 								<br/>
 								<h5 style={{marginLeft:"3px"}} className="card-title">

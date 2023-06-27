@@ -80,7 +80,7 @@ const Register = () => {
                           </div>
                         </div><br/>
                         <center>
-                        <button type="submit" style={{width: '310px',marginLeft:"10px"}} className="btn btn-primary text-white">
+                        <button type="submit" style={{width: '380px',marginLeft:"10px"}} className="btn btn-primary text-white">
                           Register
                         </button><br/>
                         <Link className="link-dark" to="/Login" > 
@@ -89,34 +89,6 @@ const Register = () => {
                         </center>
 
                       </form>
-                    </div>
-                    <div className="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
-                             <Carousel>
-                                <Carousel.Item><br/><br/><br/><br/><br/>
-                                    <img
-                                    className="d-block w-100"
-                                    src="https://www.unileverfoodsolutions.com.au/dam/global-ufs/mcos/anz/calcmenu/recipe/killer-recipes-update/beef-burger-with-deep-fried-bacon-and-thousand-island-dressing_main-header.jpg"
-                                    width="400" height="400"
-                                    alt="First slide"
-                                    />
-                                </Carousel.Item>
-                                <Carousel.Item><br/><br/><br/><br/><br/>
-                                    <img
-                                    className="d-block w-100"
-                                    src="https://img-global.cpcdn.com/recipes/18e75e45937347db/1200x630cq70/photo.jpg"
-                                    width="500" height="400"
-                                    alt="Second slide"
-                                    />
-                                </Carousel.Item>
-                                <Carousel.Item><br/><br/><br/><br/><br/>
-                                    <img
-                                    className="d-block w-100"
-                                    src="https://img.okezone.com/content/2019/06/09/298/2064765/aroma-kopi-indonesia-semakin-harum-di-world-of-coffe-jerman-C8ygzWfm8s.jpg"
-                                    width="400" height="400"
-                                    alt="Third slide"
-                                    />
-                                </Carousel.Item>
-                            </Carousel>
                     </div>
                   </div>
                 </div>
